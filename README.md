@@ -24,6 +24,17 @@ Bajá `myvms-x.y.z-portable.exe` desde [Releases](https://github.com/evilpixi/my
 
 La contraseña queda guardada cifrada en tu usuario de Windows.
 
+### La IP de la cámara
+
+Para encontrarla, usá una de estas opciones:
+
+- **En la app iCSee:** abrí la cámara, entrá a la configuración (⚙) y buscá la info del dispositivo o de la red. Ahí figura la dirección IP.
+- **En el router:** entrá a la página del router (suele ser `192.168.1.1` o `192.168.0.1`) y buscá la lista de dispositivos conectados. La cámara suele aparecer con un nombre parecido a "IPC" o "camera".
+
+Para cambiarla, tocá **⚙**, escribí la IP nueva y guardá.
+
+> Si la cámara deja de verse de un día para otro, probablemente el router le dio otra IP. Para que no vuelva a pasar, reservale una IP fija en el router (opción "Reserva DHCP" o "IP estática").
+
 Otra opción es poner un archivo `.env` junto al exe con el usuario y la contraseña:
 
 ```
@@ -75,3 +86,7 @@ npm run dist    # generar el exe en dist/
 ```
 
 Para publicar una versión nueva: subí la versión en `package.json` y empujá un tag `vX.Y.Z`. GitHub Actions arma el exe y lo adjunta al release.
+
+## Licencia
+
+[MIT](LICENSE)
