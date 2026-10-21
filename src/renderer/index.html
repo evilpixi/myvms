@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; media-src blob:; img-src 'self' data:">
+  <title>myvms</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand">myvms</div>
+    <div class="group">
+      <button id="rot-left" title="Rotar a la izquierda (Shift+R)">⟲ 90°</button>
+      <span id="rot-value" class="badge">0°</span>
+      <button id="rot-right" title="Rotar a la derecha (R)">90° ⟳</button>
+    </div>
+    <div class="group">
+      <button id="rec-start" class="rec-btn play" title="Empezar a grabar">▶ Grabar</button>
+      <button id="rec-stop" class="rec-btn stop" title="Dejar de grabar">■ Detener</button>
+      <button id="rec-folder" title="Abrir carpeta de grabaciones">📁</button>
+    </div>
+    <div class="group right">
+      <span id="rec-badge" class="rec-badge off" title="Grabación continua">REC</span>
+      <span id="status" class="status connecting">Conectando…</span>
+      <button id="open-settings" title="Ajustes">⚙</button>
+      <button id="toggle-panel" title="Mostrar/ocultar panel (P)">☰</button>
+      <button id="maximize" title="Maximizar video dentro de la app (M)">⤢</button>
+      <button id="fullscreen" title="Pantalla completa (F)">⛶</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <main id="stage" class="stage">
+      <video id="video" muted autoplay playsinline></video>
+      <div id="overlay" class="overlay">Conectando con la cámara…</div>
+      <div id="stats" class="stats"></div>
+
+      <!-- Controles flotantes: visibles con el video maximizado o en pantalla completa. -->
+      <div id="float" class="float">
+        <div id="float-head" class="float-head" title="Arrastrar para mover">
+          <span class="grip">⠿ Controles</span>
+          <span id="float-rec" class="float-rec" title="Grabando">●</span>
+          <button id="float-collapse" class="icon" title="Contraer / expandir">–</button>
+          <button id="float-exit" class="icon" title="Salir del video maximizado (Esc)">⤡</button>
+        </div>
+        <div class="float-body">
+          <div class="dpad compact">
+            <button data-x="-1" data-y="-1">↖</button>
+            <button data-x="0" data-y="-1">↑</button>
+            <button data-x="1" data-y="-1">↗</button>
+            <button data-x="-1" data-y="0">←</button>
+            <span class="dpad-center"></span>
+            <button data-x="1" data-y="0">→</button>
+            <button data-x="-1" data-y="1">↙</button>
+            <button data-x="0" data-y="1">↓</button>
+            <button data-x="1" data-y="1">↘</button>
+          </div>
+          <button id="float-patrol" class="float-patrol" title="Vigilancia / control manual (V)"></button>
+          <div id="float-presets" class="float-presets"></div>
+        </div>
+      </div>
+    </main>
+
+    <aside id="panel" class="panel">
+      <section>
+        <h2>Movimiento <span id="ptz-state" class="hint"></span></h2>
+        <div class="dpad">
+          <button data-x="-1" data-y="-1" title="Arriba-izquierda">↖</button>
+          <button data-x="0" data-y="-1" title="Arriba (↑)">↑</button>
+          <button data-x="1" data-y="-1" title="Arriba-derecha">↗</button>
+          <button data-x="-1" data-y="0" title="Izquierda (←)">←</button>
+          <span class="dpad-center"></span>
+          <button data-x="1" data-y="0" title="Derecha (→)">→</button>
+          <button data-x="-1" data-y="1" title="Abajo-izquierda">↙</button>
+          <button data-x="0" data-y="1" title="Abajo (↓)">↓</button>
+          <button data-x="1" data-y="1" title="Abajo-derecha">↘</button>
+        </div>
+        <label class="row">
+          <span>Velocidad</span>
+          <input id="speed" type="range" min="1" max="8" step="1">
+          <span id="speed-value" class="badge small">5</span>
+        </label>
+        <p class="hint">Mantené apretada una flecha (o las teclas ← ↑ → ↓) para mover.</p>
+      </section>
+
+      <section>
+        <h2>Presets
+          <button id="presets-sync" class="icon" title="Traer los presets guardados en la cámara">⟳</button>
+        </h2>
+        <ul id="presets" class="presets"></ul>
+        <form id="preset-form" class="row">
+          <input id="preset-name" type="text" maxlength="40" placeholder="Nombre (ej. Puerta)">
+          <button type="submit" title="Guarda la posición actual como preset">Guardar</button>
+        </form>
+        <p class="hint">Teclas 1–9 para ir a los primeros nueve. Marcá ◉ los que entran en la vigilancia.</p>
+      </section>
+
+      <section>
+        <h2>Vigilancia</h2>
+        <div class="segmented" role="group">
+          <button id="patrol-on" title="Recorrer las posiciones marcadas (V)">◉ Vigilancia</button>
+          <button id="patrol-off" title="Control manual (V)">✋ Manual</button>
+        </div>
+        <div class="row">
+          <span>Recorrido</span>
+          <div class="segmented grow" role="group">
+            <button id="patrol-loop" title="A → B → C → A…">↻ Ciclo</button>
+            <button id="patrol-yoyo" title="Ida y vuelta: A → B → C → B → A…">⇄ Yoyo</button>
+          </div>
+        </div>
+        <label class="row">
+          <span>Cambiar cada</span>
+          <input id="patrol-interval" type="number" min="5" max="3600" step="1">
+          <span>seg</span>
+        </label>
+        <label class="row">
+          <span>Velocidad</span>
+          <input id="patrol-speed" type="range" min="1" max="8" step="1">
+          <span id="patrol-speed-value" class="badge small">5</span>
+        </label>
+        <div id="patrol-info" class="hint"></div>
+      </section>
+
+      <section>
+        <h2>Grabación</h2>
+        <div id="rec-info" class="rec-info">—</div>
+      </section>
+    </aside>
+  </div>
+
+  <dialog id="settings">
+    <form id="settings-form" method="dialog">
+      <h2>Ajustes</h2>
+      <fieldset>
+        <legend>Cámara</legend>
+        <label>IP <input name="host" required></label>
+        <label>Usuario <input name="user" required></label>
+        <label>Contraseña <input name="pass" type="password" placeholder="(sin cambios)"></label>
+        <p id="cred-source" class="hint"></p>
+      </fieldset>
+      <fieldset>
+        <legend>Movimiento</legend>
+        <label class="check"><input name="invertX" type="checkbox"> Invertir horizontal</label>
+        <label class="check"><input name="invertY" type="checkbox"> Invertir vertical</label>
+      </fieldset>
+      <fieldset>
+        <legend>Grabación</legend>
+        <label>Carpeta
+          <span class="row"><input name="dir" readonly><button type="button" id="choose-dir">Elegir…</button></span>
+        </label>
+        <label>Borrar grabaciones de más de <span class="row"><input name="days" type="number" min="1" max="365"> días</span></label>
+      </fieldset>
+      <div class="actions">
+        <button type="button" id="settings-cancel">Cancelar</button>
+        <button type="submit" class="primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="live.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

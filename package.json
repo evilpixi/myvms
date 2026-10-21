@@ -1,0 +1,54 @@
+{
+  "name": "myvms",
+  "version": "0.1.0",
+  "description": "VMS de escritorio para la cámara de casa",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "probe": "node scripts/probe.js",
+    "ptz-test": "node scripts/ptz-test.js",
+    "dist": "electron-builder --win portable --x64"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0"
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.3.0": true,
+    "electron@44.9.2": true,
+    "electron-winstaller": false
+  },
+  "devDependencies": {
+    "electron": "^44.9.2",
+    "electron-builder": "^26.15.3"
+  },
+  "author": "tatos",
+  "build": {
+    "appId": "com.tatos.myvms",
+    "productName": "myvms",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/ffmpeg-static/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "myvms-${version}-portable.exe"
+    }
+  }
+}

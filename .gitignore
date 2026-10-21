@@ -1,0 +1,8 @@
+node_modules/
+dist/
+snapshots/
+.env
+
+# Notas de planificación (solo locales)
+plan.md
+plan-implementacion.md
